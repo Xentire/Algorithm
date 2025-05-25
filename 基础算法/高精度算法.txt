@@ -1,4 +1,5 @@
 高精度加法
+
 例题:https://www.acwing.com/problem/content/793/
 
 给定两个正整数（不含前导 0），计算它们的和。
@@ -111,6 +112,7 @@ int main()
 }
 
 高精度减法
+
 例题:https://www.acwing.com/problem/content/794/
 
 给定两个正整数（不含前导 0），计算它们的差，计算结果可能为负数。
@@ -192,6 +194,7 @@ int main()
 
 
 高精度乘法
+
 例题:https://www.acwing.com/problem/content/795/
 
 给定两个非负整数（不含前导 0） A 和 B，请你计算 A×B 的值。
@@ -243,6 +246,7 @@ int main()
 }
 
 高精度除法
+
 例题:https://www.acwing.com/problem/content/796/
 
 给定两个非负整数（不含前导 0） A，B，请你计算 A/B 的商和余数。
