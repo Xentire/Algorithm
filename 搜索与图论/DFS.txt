@@ -1,0 +1,241 @@
+全排列
+
+例题:https://www.acwing.com/problem/content/844/
+
+给定一个整数 n，将数字 1∼n 排成一排，将会有很多种排列方法。
+
+现在，请你按照字典序将所有的排列方法输出。
+
+输入格式
+共一行，包含一个整数 n。
+
+输出格式
+按字典序输出所有排列方案，每个方案占一行。
+
+数据范围
+1≤n≤7
+输入样例：
+3
+输出样例：
+1 2 3
+1 3 2
+2 1 3
+2 3 1
+3 1 2
+3 2 1
+
+#include <iostream>
+#include <algorithm>
+using namespace std;
+const int N = 15;
+int Path[N];
+bool used[N];
+int n;
+void dfs(int x)//x表示当前枚举到了第几个数
+{
+    if(x == n)
+    {
+        for(int i = 1;i <= n;i++)
+        {
+            cout << Path[i] << " ";
+        }
+        cout << endl;
+        return ;
+    }
+    for(int i = 1;i <= n;i++)
+    {
+        if(!used[i])
+        {
+            used[i] = true;
+            Path[x + 1] = i;
+            dfs(x + 1);
+            used[i] = false;
+        }
+    }
+}
+int main()
+{
+    cin >> n;
+    dfs(0);
+    
+    
+    return 0;
+}
+
+n皇后问题
+
+例题:https://www.acwing.com/problem/content/845/
+
+n− 皇后问题是指将 n 个皇后放在 n×n 的国际象棋棋盘上，使得皇后不能相互攻击到，即任意两个皇后都不能处于同一行、同一列或同一斜线上。
+
+1_597ec77c49-8-queens.png
+
+现在给定整数 n，请你输出所有的满足条件的棋子摆法。
+
+输入格式
+共一行，包含整数 n。
+
+输出格式
+每个解决方案占 n 行，每行输出一个长度为 n 的字符串，用来表示完整的棋盘状态。
+
+其中 . 表示某一个位置的方格状态为空，Q 表示某一个位置的方格上摆着皇后。
+
+每个方案输出完成后，输出一个空行。
+
+注意：行末不能有多余空格。
+
+输出方案的顺序任意，只要不重复且没有遗漏即可。
+
+数据范围
+1≤n≤9
+输入样例：
+4
+输出样例：
+.Q..
+...Q
+Q...
+..Q.
+
+..Q.
+Q...
+...Q
+.Q..
+
+
+
+#include <iostream>
+#include <algorithm>
+using namespace std;
+const int N = 12;
+bool col[N],diag[N],udiag[N];
+char g[N][N];
+int n;
+void dfs(int row)//row表示当前枚举到了第几行
+{
+    if(row > n)
+    {
+        for(int i = 1;i <= n;i++)
+        {
+            for(int j = 1;j <= n;j++) cout << g[i][j];
+            cout << endl;
+        }
+        cout << endl;
+        return;
+    }
+    
+    for(int i = 1;i <= n;i++)
+    {
+        if(!col[i] && !diag[n - i + row] && !udiag[i + row])
+        {
+            col[i] = diag[n - i + row] = udiag[i + row] = true;
+            g[row][i] = 'Q';
+            dfs(row + 1);
+            g[row][i] = '.';
+            col[i] = diag[n - i + row] = udiag[i + row] = false;
+        }
+    }
+}
+int main()
+{
+    cin >> n;
+    for(int i = 1;i <= n;i++)
+    {
+        for(int j = 1;j <= n;j++)
+            g[i][j] = '.';
+    }
+    dfs(1);
+    
+    
+    
+    return 0;
+}
+
+算法核心:
+注意到题目说主斜对角线都不能同时有棋子  可以观察主斜对角线的性质  在同一个对角线的时候他们的截距相等  建立坐标系后也就是
+对于主对角线来说 row - col 相等 又因为row - col可能为负 故全都增加一个偏移量 n + row - col
+对于副对角线来说 row +_col 相等不可能为负 故索引就是为row + col
+
+树的DFS
+
+例题:https://www.acwing.com/problem/content/848/
+
+给定一颗树，树中包含 n 个结点（编号 1∼n）和 n−1 条无向边。
+
+请你找到树的重心，并输出将重心删除后，剩余各个连通块中点数的最大值。
+
+重心定义：重心是指树中的一个结点，如果将这个点删除后，剩余各个连通块中点数的最大值最小，那么这个节点被称为树的重心。
+
+输入格式
+第一行包含整数 n，表示树的结点数。
+
+接下来 n−1 行，每行包含两个整数 a 和 b，表示点 a 和点 b 之间存在一条边。
+
+输出格式
+输出一个整数 m，表示将重心删除后，剩余各个连通块中点数的最大值。
+
+数据范围
+1≤n≤105
+输入样例
+9
+1 2
+1 7
+1 4
+2 8
+2 5
+4 3
+3 9
+4 6
+输出样例：
+4
+
+#include <iostream>
+#include <cstring>
+#include <algorithm>
+using namespace std;
+const int N = 1e5 + 10;
+int ne[N * 2],h[N],e[N * 2],st[N],idx;
+int n,ans = 1e9;
+int dfs(int u)
+{
+    int res = 0,sum = 1;
+    st[u] = true;
+    for(int i = h[u];i != -1;i = ne[i])
+    {
+        int j = e[i];
+        if(!st[j])
+        {
+            int num = dfs(j);
+            sum += num;
+            res = max(res,num);
+        }
+    }
+    res = max(res,n - sum);
+    ans = min(res,ans);
+    return sum;
+}
+void add(int x,int y)
+{
+    e[idx] = y;
+    ne[idx] = h[x];
+    h[x] = idx++;
+}
+
+int main()
+{
+    cin >> n;
+    memset(h,-1,sizeof h);
+    for(int i = 1;i <= n - 1;i++)
+    {
+        int a,b;
+        cin >> a >> b;
+        if(a == b) continue;
+        add(a,b);
+        add(b,a);
+    }
+    dfs(1);
+    cout << ans << endl; 
+    return 0;
+}
+
+算法核心:
+dfs可以统计子树的节点个数
