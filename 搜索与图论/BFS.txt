@@ -186,3 +186,99 @@ int main()
 算法核心:
 将一维字符串的下标索引转化为二维关键点就是理解如何/和%的用法
 /可以将下标转化为x %可以将下标转化为y
+
+图的BFS
+
+例题:https://www.acwing.com/problem/content/description/849/
+
+给定一个 n 个点 m 条边的有向图，图中可能存在重边和自环。
+
+所有边的长度都是 1，点的编号为 1∼n。
+
+请你求出 1 号点到 n 号点的最短距离，如果从 1 号点无法走到 n 号点，输出 −1。
+
+输入格式
+第一行包含两个整数 n 和 m。
+
+接下来 m 行，每行包含两个整数 a 和 b，表示存在一条从 a 走到 b 的长度为 1 的边。
+
+输出格式
+输出一个整数，表示 1 号点到 n 号点的最短距离。
+
+数据范围
+1≤n,m≤105
+输入样例：
+4 5
+1 2
+2 3
+3 4
+1 3
+1 4
+输出样例：
+1
+
+#include<iostream>
+#include<algorithm>
+#include<cstring>
+#include<queue>
+using namespace std;
+const int N = 1e5 + 10;
+int n,m;
+int e[N],h[N],ne[N],idx;
+queue<int> q;
+int dist[N];
+
+
+int bfs(int start)
+{
+    q.push(start);
+    dist[start] = 0;
+
+    while(q.size())
+    {
+        auto t = q.front();
+        q.pop();
+
+        if(t == n) return dist[t];
+
+        for(int i = h[t];i != -1;i = ne[i])
+        {
+            int j = e[i];
+            if(dist[j] != -1) continue;
+            dist[j] = dist[t] + 1;
+            q.push(j);
+        }
+    }
+
+
+    return -1;
+}
+
+void add(int a,int b)
+{
+    e[idx] = b,ne[idx] = h[a],h[a] = idx++;
+}
+
+int main()
+{
+    cin >> n >> m;
+    memset(h,-1,sizeof h);
+    memset(dist,-1,sizeof dist);
+    for(int i = 1;i <= m;i++)
+    {
+        int a,b;
+        cin >> a >> b;
+        if(a == b) continue;//处理自环
+        add(a,b);
+    }
+
+
+    cout << bfs(1) << endl;
+
+    return 0;
+}
+
+算法核心:
+//本题关键点 dfs(i) i传入的是一个节点而不是边
+q队列存放的也是节点 dist[i]是指从1号节点到i号节点的最短路径所以dist的索引也是节点  
+但是for循环遍历以t为起点的边的时候 i存储的是边  所以改变dist和将节点入队的时候要使用i边的终点e[i] e[]存的才是节点
