@@ -1,0 +1,178 @@
+染色法判断二分图
+
+例题:https://www.acwing.com/problem/content/862/
+
+给定一个 n 个点 m 条边的无向图，图中可能存在重边和自环。
+
+请你判断这个图是否是二分图。
+
+输入格式
+第一行包含两个整数 n 和 m。
+
+接下来 m 行，每行包含两个整数 u 和 v，表示点 u 和点 v 之间存在一条边。
+
+输出格式
+如果给定图是二分图，则输出 Yes，否则输出 No。
+
+数据范围
+1≤n,m≤105
+输入样例：
+4 4
+1 3
+1 4
+2 3
+2 4
+输出样例：
+Yes
+
+#include <iostream>
+#include <cstring>
+#include <algorithm>
+using namespace std;
+const int N = 1e5 + 10;
+int n,m;
+int ne[N * 2],e[N * 2],h[N],idx;
+int color[N];
+void add(int x,int y)
+{
+    e[idx] = y,ne[idx] = h[x],h[x] = idx++;
+}
+bool dfs(int x,int c)
+{
+    color[x] = c;
+    for(int i = h[x];i != -1;i = ne[i])
+    {
+        int j = e[i];
+        if(!color[j])
+        {
+            if(!dfs(j,3 - c))
+            {
+                return false;
+            }
+        }
+        else if(color[j] == c) return false;
+    }
+    return true;
+}
+int main()
+{
+    cin >> n >> m;
+    memset(h,-1,sizeof h);
+    while(m--)
+    {
+        int x,y;
+        cin >> x >> y;
+        add(x,y);
+        add(y,x);
+    }
+    bool flag = false;
+    for(int i = 1;i <= n;i++)
+    {
+        if(!color[i])
+        {
+            if(!dfs(i,1))
+            {
+                flag = true;
+                break;
+            }
+        }
+    }
+    if(flag) cout << "No" << endl;
+    else cout << "Yes" << endl;
+    return 0;
+}
+
+算法核心:
+主函数的for循环是防止有多个连通分量  dfs只能遍历完一个连通分量
+此题不能提前判断自环 因为存在自环也是判断是否为二分图的一个条件 若是存在自环则不是二分图
+
+
+匈牙利算法(二分图的最大匹配)
+
+例题:https://www.acwing.com/problem/content/863/
+
+给定一个二分图，其中左半部包含 n1 个点（编号 1∼n1），右半部包含 n2 个点（编号 1∼n2），二分图共包含 m 条边。
+
+数据保证任意一条边的两个端点都不可能在同一部分中。
+
+请你求出二分图的最大匹配数。
+
+二分图的匹配：给定一个二分图 G，在 G 的一个子图 M 中，M 的边集 {E} 中的任意两条边都不依附于同一个顶点，则称 M 是一个匹配。
+
+二分图的最大匹配：所有匹配中包含边数最多的一组匹配被称为二分图的最大匹配，其边数即为最大匹配数。
+
+输入格式
+第一行包含三个整数 n1、 n2 和 m。
+
+接下来 m 行，每行包含两个整数 u 和 v，表示左半部点集中的点 u 和右半部点集中的点 v 之间存在一条边。
+
+输出格式
+输出一个整数，表示二分图的最大匹配数。
+
+数据范围
+1≤n1,n2≤500,
+1≤u≤n1,
+1≤v≤n2,
+1≤m≤105
+输入样例：
+2 2 4
+1 1
+1 2
+2 1
+2 2
+输出样例：
+2
+
+#include <iostream>
+#include <algorithm>
+#include <cstring>
+using namespace std;
+const int N = 510;
+int arr[N][N];
+int n1,n2,m;
+int match[N];
+bool st[N];
+bool find(int x)
+{
+    for(int i = 1;i <= n2;i++)
+    {
+        if(arr[x][i])
+        {
+            if(!st[i])
+            {
+                st[i] = true;
+                if(!match[i] || find(match[i]))
+                {
+                    match[i] = x;
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+int main()
+{
+    cin >> n1 >> n2 >> m;
+    for(int i = 1;i <= m;i++)
+    {
+        int x,y;
+        cin >> x >> y;
+        arr[x][y] = 1;
+    }
+    
+    int ans = 0;
+    for(int i = 1;i <= n1;i++)
+    {
+        if(find(i)) ans++;
+        
+        memset(st,false,sizeof st);
+    }
+    cout << ans << endl;
+    return 0;
+}
+
+算法核心:
+st数组的作用 防止第i位男生已经考虑过了女生j 然后女生j的男朋友在递归寻找下一位女朋友的时候又找到女生j而陷入死循环
+每次都要确保男生i开始的时候每一位女生都没有被考虑过  
+考虑不是匹配!
