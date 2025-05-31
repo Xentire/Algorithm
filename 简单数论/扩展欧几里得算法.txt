@@ -1,0 +1,141 @@
+扩展欧几里得
+
+例题:https://www.acwing.com/problem/content/879/
+
+给定 n 对正整数 ai,bi，对于每对数，求出一组 xi,yi，使其满足 ai×xi+bi×yi=gcd(ai,bi)。
+
+输入格式
+第一行包含整数 n。
+
+接下来 n 行，每行包含两个整数 ai,bi。
+
+输出格式
+输出共 n 行，对于每组 ai,bi，求出一组满足条件的 xi,yi，每组结果占一行。
+
+本题答案不唯一，输出任意满足条件的 xi,yi 均可。
+
+数据范围
+1≤n≤105,
+1≤ai,bi≤2×109
+输入样例：
+2
+4 6
+8 18
+输出样例：
+-1 1
+-2 1
+
+#include <iostream>
+#include <cstring>
+#include <algorithm>
+using namespace std;
+int n;
+int exgcd(int a,int b,int &x,int &y)
+{
+    if(!b)
+    {
+        x = 1,y = 0;
+        return a;
+    }
+    int x1,y1;
+    int d = exgcd(b,a % b,x1,y1);
+    x = y1,y = x1 - a / b * y1;
+    return d;
+    
+}
+int main()
+{
+    cin >> n;
+    while(n--)
+    {
+        int a,b,x,y;
+        cin >> a >> b;
+        exgcd(a,b,x,y);
+        cout << x << " " << y << endl;
+    }
+    return 0;
+}
+
+算法核心:
+由贝祖定理可得 一定存在不同时为0的a和b  使得ax + by = gcd(a,b)  且a % b == a - a / b * b;此处a / b为下取整
+公式推导
+①
+有gcd(a,b) = b ? gcd(b,a % b) : a;可得当b为0时y = 0 x = 1;
+②
+因为gcd(b,a % b) == x1*b + y1*(a%b)
+所以gcd(b,a % b) == x1*b + y1(a - a/b*b)  此处a/b为下取整
+又因为欧几里得算法可得gcd(a,b) == gcd(b,a % b)
+所以gcd(a,b) == y1*a + (x1 - a/b * y1)b
+所以由贝祖定理可得 x == y1 y == x1 - a/b * y1
+
+
+求解线性同余方程
+
+例题:https://www.acwing.com/problem/content/880/
+
+给定 n 组数据 ai,bi,mi，对于每组数求出一个 xi，使其满足 ai×xi≡bi(modmi)，如果无解则输出 impossible。
+
+输入格式
+第一行包含整数 n。
+
+接下来 n 行，每行包含一组数据 ai,bi,mi。
+
+输出格式
+输出共 n 行，每组数据输出一个整数表示一个满足条件的 xi，如果无解则输出 impossible。
+
+每组数据结果占一行，结果可能不唯一，输出任意一个满足条件的结果均可。
+
+输出答案必须在 int 范围之内。
+
+数据范围
+1≤n≤105,
+1≤ai,bi,mi≤2×109
+输入样例：
+2
+2 3 6
+4 3 5
+输出样例：
+impossible
+-3
+
+#include <iostream>
+#include <cstring>
+#include <algorithm>
+using namespace std;
+int n;
+typedef long long LL;
+int exgcd(int a,int b,int &x,int &y)
+{
+    if(!b)
+    {
+        x = 1,y = 0;
+        return a;
+    }
+    int x1,y1;
+    int d = exgcd(b,a % b,x1,y1);
+    x = y1,y = x1 - a / b * y1;
+    return d;
+}
+int main()
+{
+    cin >> n;
+    while(n--)
+    {
+        int a,b,m,x,y;
+        cin >> a >> b >> m;
+        int d = exgcd(a,m,x,y);
+        if(b % d) cout << "impossible" << endl;
+        else cout << (LL)b / d * x % m << endl;
+    }
+    
+    return 0;
+}
+
+算法核心:
+由题意可得 ax = b (mod m)
+即ax = my + b -> ax - my = b
+由贝祖定理可得 ax + by = gcd(a,b)
+所以ax - my = b成立当且仅当 b 为gcd(a,m)的倍数时
+① b % gcd(a,m) != 0时 impossible
+② x = x * b / d % m
+因为b可能是 d 的倍数 所以x也要乘以相对的倍数
