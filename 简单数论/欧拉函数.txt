@@ -1,0 +1,136 @@
+求欧拉函数
+
+例题:https://www.acwing.com/problem/content/875/_
+
+给定 n 个正整数 ai，请你求出每个数的欧拉函数。
+
+欧拉函数的定义
+1∼N 中与 N 互质的数的个数被称为欧拉函数，记为 ϕ(N)。
+若在算数基本定理中，N=pa11pa22…pamm，则：
+ϕ(N) = N×p1−1p1×p2−1p2×…×pm−1pm
+输入格式
+第一行包含整数 n。
+
+接下来 n 行，每行包含一个正整数 ai。
+
+输出格式
+输出共 n 行，每行输出一个正整数 ai 的欧拉函数。
+
+数据范围
+1≤n≤100,
+1≤ai≤2×109
+输入样例：
+3
+3
+6
+8
+输出样例：
+2
+2
+4
+
+#include <iostream>
+#include <algorithm>
+#include <cstring>
+using namespace std;
+const int N = 110;
+int n;
+int main()
+{
+    cin >> n;
+    while(n--)
+    {
+        int x;
+        cin >> x;
+        int res = x;
+        for(int i = 2;i <= x / i;i++)
+        {
+            if(x % i == 0)    
+            {
+                res = res / i * (i - 1);
+                while(x % i == 0) x /= i;
+            }
+        }
+        if(x > 1) res = res / x * (x - 1);
+        cout << res << endl;
+    }
+    
+    return 0;
+}
+
+算法核心:
+欧拉函数可以求得1~N中与N互质的数的个数
+欧拉函数Phi(N) = N * (1 - 1/p1) * (1 - 1/p2)*···*(1 - 1/pm)
+其中N = p1^a1 * p2^a2 * ..... * pm^am
+p全为N的质因数
+
+
+线性筛求欧拉函数和
+
+例题:https://www.acwing.com/problem/content/876/
+
+给定一个正整数 n，求 1∼n 中每个数的欧拉函数之和。
+
+输入格式
+共一行，包含一个整数 n。
+
+输出格式
+共一行，包含一个整数，表示 1∼n 中每个数的欧拉函数之和。
+
+数据范围
+1≤n≤106
+输入样例：
+6
+输出样例：
+12
+
+#include <iostream>
+#include <cstring>
+#include <algorithm>
+using namespace std;
+const int N = 1e6 + 10;
+int Phi[N],primes[N];
+int cnt,n,st[N];
+typedef long long LL;
+LL Get_Phi()
+{
+    Phi[1] = 1;
+    for(int i = 2;i <= n;i++)
+    {
+        if(!st[i]) 
+        {
+            Phi[i] = i - 1;
+            
+            primes[cnt++] = i;
+        }
+        for(int j = 0;primes[j] <= n / i;j++)
+        {
+            st[primes[j] * i] = true;
+            if(i % primes[j] == 0) 
+            {
+                Phi[primes[j] * i] = Phi[i] * primes[j];
+                break;
+            }
+            Phi[primes[j] * i] = Phi[i] * (primes[j] - 1);
+            
+        }
+    }
+    LL ans = 0;
+    for(int i = 1;i <= n;i++) ans += Phi[i];
+    return ans;
+}
+int main()
+{
+    cin >> n;
+    cout << Get_Phi() << endl; 
+    return 0;
+}
+
+算法核心:
+对于Get_Phi函数
+①当i为质数时 i与除了i以外的所有数都互质 所以Phi[i] = i - 1
+②对于合数primes[j] * i 而言当i % pj == 0时 说明pj是i的一个约数 所以i中有pj的所有质因数
+由欧拉函数可得 Phi[pj * i] = pj * i * (1 - 1/p1) * (1 - 1/p2)*···*(1 - 1/pm) = pj * Phi[i]
+③对于合数pj * i 而言当i % pj != 0  时 说明pj不是i的一个约数 又因为primes数组内存储的是质数
+所以pj是一个质数 pj只有一个质因子就是pj自己
+所以Phi[pj * i] = pj * i * (1 - 1/p1) * (1 - 1/p2) * ··· * (1 - 1/pm) * (1 - 1/pj) = Phi[i] * (pj - 1)
