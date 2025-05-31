@@ -1,4 +1,4 @@
-prim算法(稠密图 ）
+prim算法(稠密图)
 
 例题:https://www.acwing.com/problem/content/860/
 
@@ -53,7 +53,7 @@ int prim()
         {
             if(!st[j] && (t == -1 || dist[t] > dist[j]))
                 t = j;
-        }
+        }	
         ans += dist[t];
         if(dist[t] == INF) return INF;
         st[t] = true;
