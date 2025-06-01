@@ -1,0 +1,126 @@
+高斯消元解线性方程组
+
+例题:https://www.acwing.com/problem/content/885/
+
+输入一个包含 n 个方程 n 个未知数的线性方程组。
+
+方程组中的系数为实数。
+
+求解这个方程组。
+
+下图为一个包含 m 个方程 n 个未知数的线性方程组示例：
+
+9a504fc2d5628535be9dcb5f90ef76c6a7ef634a.gif
+
+输入格式
+第一行包含整数 n。
+
+接下来 n 行，每行包含 n+1 个实数，表示一个方程的 n 个系数以及等号右侧的常数。
+
+输出格式
+如果给定线性方程组存在唯一解，则输出共 n 行，其中第 i 行输出第 i 个未知数的解，结果保留两位小数。
+
+注意：本题有 SPJ，当输出结果为 0.00 时，输出 -0.00 也会判对。在数学中，一般没有正零或负零的概念，所以严格来说应当输出 0.00，但是考虑到本题作为一道模板题，考察点并不在于此，在此处卡住大多同学的代码没有太大意义，故增加 SPJ，对输出 -0.00 的代码也予以判对。
+
+如果给定线性方程组存在无数解，则输出 Infinite group solutions。
+
+如果给定线性方程组无解，则输出 No solution。
+
+数据范围
+1≤n≤100,
+所有输入系数以及常数均保留两位小数，绝对值均不超过 100。
+
+输入样例：
+3
+1.00 2.00 -1.00 -6.00
+2.00 1.00 -3.00 -9.00
+-1.00 -1.00 2.00 7.00
+输出样例：
+1.00
+-2.00
+3.00
+
+#include <iostream>
+#include <algorithm>
+#include <cmath>
+using namespace std;
+int n;
+const int N = 110;
+const double eps = 1e-6;
+double arr[N][N];
+
+int gauss()
+{
+    int r,c;
+    for(r = 0,c = 0;c < n;c++)
+    {
+        int t = r;
+        for(int j = r;j < n;j++)
+        {
+            if(abs(arr[j][c]) > abs(arr[t][c]))
+                t = j;
+        }
+        
+        if(abs(arr[t][c]) < eps) continue;
+        for(int i = c;i < n + 1;i++) swap(arr[t][i],arr[r][i]);
+        for(int i = n;i >= c;i--) arr[r][i] /= arr[r][c];
+        
+        for(int i = r + 1;i < n;i++)
+        {
+            if(abs(arr[i][c]) < eps) continue;
+            for(int j = n;j >= c;j--)
+            {
+                arr[i][j] -= arr[r][j] * arr[i][c];
+            }
+        } 
+        r++;
+    }
+    if(r < n)
+    {
+        for(int i = r;i < n;i++)
+        {
+            if(abs(arr[i][n]) > eps) return 1;
+        }
+        return 2;
+    }
+    for(int i = n - 1;i >= 0;i--)
+    {
+        for(int j = i + 1;j < n;j++)
+        {
+            arr[i][n] -= arr[i][j] * arr[j][n];
+        }
+    }
+    return 0;
+}
+
+int main()
+{
+    cin >> n;
+    for(int i = 0;i < n;i++)
+    {
+        for(int j = 0;j < n + 1;j++)
+        {
+            cin >> arr[i][j];
+        }
+    }
+    int t = gauss();
+    if(!t)
+    {
+        for(int i = 0;i < n;i++) printf("%.2lf\n",arr[i][n]);
+    }
+    else if(t == 1) cout << "No solution" << endl;
+    else cout << "Infinite group solutions" << endl;
+    
+    return 0;
+}
+
+算法核心:
+高斯消元步骤:
+①枚举每一列c 
+②找到当前列绝对值最大的一行
+③将该行换到当前枚举到的行
+④将改行的第一个数变成1
+⑤将下面所有行的当前列变为0
+难点:最后处理结果的时候因为每一行的第一个元素都是1 
+所以只需要让上面一行的总和即arr[i][n]减去上面一行的系数乘以下面一行的arr[i][n]即下面一行的此列x的值
+因为是逆着推  所以当处理到某一行的时候  已经处理完的每一行的值arr[i][n]就是x的值
