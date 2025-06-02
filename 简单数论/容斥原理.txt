@@ -1,0 +1,73 @@
+容斥原理
+
+例题:https://www.acwing.com/problem/content/892/
+
+给定一个整数 n 和 m 个不同的质数 p1,p2,…,pm。
+
+请你求出 1∼n 中能被 p1,p2,…,pm 中的至少一个数整除的整数有多少个。
+
+输入格式
+第一行包含整数 n 和 m。
+
+第二行包含 m 个质数。
+
+输出格式
+输出一个整数，表示满足条件的整数的个数。
+
+数据范围
+1≤m≤16,
+1≤n,pi≤109
+输入样例：
+10 2
+2 3
+输出样例：
+7
+
+#include <iostream>
+#include <algorithm>
+#include <cstring>
+using namespace std;
+const int M = 20;
+typedef long long LL;
+int n,m;
+int primes[M];
+int main()
+{
+    cin >> n >> m;
+    for(int i = 0;i < m;i++) cin >> primes[i];
+    int ans = 0;
+    for(int i = 1;i < 1 << m;i++)
+    {
+        int cnt = 0,t = 1; 
+        for(int j = 0;j < m;j++)
+        {
+            if(i >> j & 1)
+            {
+                cnt++;
+                if((LL)t * primes[j] > n)
+                {
+                    t = -1;
+                    break;
+                }
+                t *= primes[j];
+            }
+        }
+        
+        if(t != - 1) 
+        {
+            if(cnt % 2) ans += n / t;
+            else ans -= n / t;
+        }
+    }
+    
+    cout << ans << endl;
+    
+    return 0;
+}
+
+算法核心:
+容斥原理用于计算多个集合的并集元素个数和交集元素个数，通过包含和排除重复计数的部分来计算目标集合的元素个数
+①求解所有集合的并集
+根据所选择的集合的个数的奇偶性来判断是包含还是排除  若是选择集合的并集中集合的数量是奇数则包含 偶数则排除
+②求解不属于任何集合的元素个数(即所有集合各自补集的交集)
+此时选择集合的交集中集合的个数若是偶数则包含 奇数则排除
