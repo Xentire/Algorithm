@@ -1,4 +1,4 @@
-简单Nim游戏
+简单Nim游戏  
 
 例题:https://www.acwing.com/problem/content/893/
 
