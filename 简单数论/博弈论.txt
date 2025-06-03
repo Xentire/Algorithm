@@ -225,3 +225,90 @@ int main()
 }
 
 算法核心:
+偶数级台阶石子的移动不会影响奇数台阶的Nim和 因为改变偶数台阶一定会带动奇数台阶变化
+而奇数台阶变化后一个人可以进行相同的变化来消除奇数台阶的变化  因为第0级台阶是偶数级台阶 所以取偶数级台阶的石子不可能跨越多级台阶到达0级台阶 又因为偶数台阶的影响可以被消除 所以偶数台阶不会影响胜负
+奇数台阶例如一级台阶可以直接到达0级台阶 而到达0级台阶的石子无法被恢复   所以奇数台阶会的变化会影响到胜负 
+而每个奇数台阶都可以看作一个Nim游戏的堆 将所有奇数台阶异或起来 若是异或和为1则先手必胜 若为0则先手必败
+
+
+拆分Nim游戏
+
+例题:https://www.acwing.com/problem/content/896/
+
+给定 n 堆石子，两位玩家轮流操作，每次操作可以取走其中的一堆石子，然后放入两堆规模更小的石子（新堆规模可以为 0，且两个新堆的石子总数可以大于取走的那堆石子数），最后无法进行操作的人视为失败。
+
+问如果两人都采用最优策略，先手是否必胜。
+
+输入格式
+第一行包含整数 n。
+
+第二行包含 n 个整数，其中第 i 个整数表示第 i 堆石子的数量 ai。
+
+输出格式
+如果先手方必胜，则输出 Yes。
+
+否则，输出 No。
+
+数据范围
+1≤n,ai≤100
+输入样例：
+2
+2 3
+输出样例：
+Yes
+
+#include <iostream>
+#include <unordered_set>
+#include <algorithm>
+#include <cstring>
+using namespace std;
+int n;
+const int N = 110;
+int p[N];
+int sg(int x)
+{
+    if(p[x] != -1) return p[x];
+    
+    unordered_set<int> us;
+    
+    for(int i = 0;i < x;i++)
+    {
+        for(int j = 0;j <= i;j++)
+        {
+            us.insert(sg(i) ^ sg(j));         
+        }
+    }
+    
+    for(int i = 0;;i++)
+    {
+        if(!us.count(i))
+        {
+            p[x] = i;
+            return i;
+        }
+    }
+}
+
+int main()
+{
+    cin >> n;
+    int res = 0;
+    memset(p,-1,sizeof p);
+    for(int i = 1;i <= n;i++)
+    {
+        int x;
+        cin >> x;
+        res ^= sg(x);
+    }
+    if(res) cout << "Yes" << endl;
+    else cout << "No" << endl;
+    
+    return 0;
+}
+
+算法核心:
+对于拆分Nim游戏来说 先理解题意 题目是说取走其中一堆石子 然后再放入两堆规模更小的石子 不需要将取走的石子分成两份
+而是随便取两堆石子
+当某一对石子变为了1个 则无法再分 此时sg值为0
+所以递归处理
+若是所有堆初始状态的sg值异或和为0则先手必败 若是非0则先手必胜

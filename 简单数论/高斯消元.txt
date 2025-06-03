@@ -124,3 +124,123 @@ int main()
 难点:最后处理结果的时候因为每一行的第一个元素都是1 
 所以只需要让上面一行的总和即arr[i][n]减去上面一行的系数乘以下面一行的arr[i][n]即下面一行的此列x的值
 因为是逆着推  所以当处理到某一行的时候  已经处理完的每一行的值arr[i][n]就是x的值
+
+高斯消元解异或线性方程组
+
+例题:https://www.acwing.com/problem/content/886/
+
+输入一个包含 n 个方程 n 个未知数的异或线性方程组。
+
+方程组中的系数和常数为 0 或 1，每个未知数的取值也为 0 或 1。
+
+求解这个方程组。
+
+异或线性方程组示例如下：
+
+M[1][1]x[1] ^ M[1][2]x[2] ^ … ^ M[1][n]x[n] = B[1]
+M[2][1]x[1] ^ M[2][2]x[2] ^ … ^ M[2][n]x[n] = B[2]
+…
+M[n][1]x[1] ^ M[n][2]x[2] ^ … ^ M[n][n]x[n] = B[n]
+其中 ^ 表示异或(XOR)，M[i][j] 表示第 i 个式子中 x[j] 的系数，B[i] 是第 i 个方程右端的常数，取值均为 0 或 1。
+
+输入格式
+第一行包含整数 n。
+
+接下来 n 行，每行包含 n+1 个整数 0 或 1，表示一个方程的 n 个系数以及等号右侧的常数。
+
+输出格式
+如果给定线性方程组存在唯一解，则输出共 n 行，其中第 i 行输出第 i 个未知数的解。
+
+如果给定线性方程组存在多组解，则输出 Multiple sets of solutions。
+
+如果给定线性方程组无解，则输出 No solution。
+
+数据范围
+1≤n≤100
+输入样例：
+3
+1 1 0 1
+0 1 1 0
+1 0 0 1
+输出样例：
+1
+0
+0
+
+#include <iostream>
+#include <algorithm>
+#include <cstring>
+using namespace std;
+const int N = 110;
+int arr[N][N];
+int n;
+
+int gauss()
+{
+    int r,c;
+    for(c = 0,r = 0;c < n;c++)
+    {
+        int t = r;
+        for(int i = r;i < n;i++)
+        {
+            if(arr[i][c]) 
+            {
+                t = i;
+                break;
+            }
+        }
+        if(!arr[t][c]) continue;
+
+        for(int i = c;i <= n;i++) swap(arr[t][i],arr[r][i]);
+        for(int i = r + 1;i < n;i++)
+        {
+            if(arr[i][c])
+            {
+                for(int j = c;j <= n;j++) arr[i][j] ^= arr[r][j];
+            }
+        }
+        r++;
+        
+    }
+    if(r < n)
+    {
+        for(int i = r;i < n;i++) 
+        {
+            if(arr[i][n]) return 2;
+        }
+        return 1;
+    }
+    
+    for(int i = n - 1;i >= 0;i--)
+    {
+        for(int j = i + 1;j < n;j++)
+        {
+            if(arr[i][j]) arr[i][n] ^= arr[j][n];
+        }
+    }
+    return 0;
+}
+
+int main()
+{
+    cin >> n;
+    for(int i = 0;i < n;i++)
+    {
+        for(int j = 0;j <= n;j++) cin >> arr[i][j];
+    }
+    int t = gauss();
+    if(t == 0)
+    {
+        for(int i = 0;i < n;i++) cout << arr[i][n] << endl;
+    }
+    else if(t == 2)
+    {
+        cout << "No solution" << endl;
+    }
+    else cout << "Multiple sets of solutions" << endl;
+    
+    return 0;
+}
+
+算法核心:
+解异或线性方程组跟普通线性方程组步骤一样 只不过异或线性方程组只有0和1两个数 步骤要简单一点
