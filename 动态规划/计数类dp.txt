@@ -1,0 +1,120 @@
+整数划分
+
+例题:https://www.acwing.com/problem/content/description/902/
+
+一个正整数 n 可以表示成若干个正整数之和，形如：n=n1+n2+…+nk，其中 n1≥n2≥…≥nk,k≥1。
+
+我们将这样的一种表示称为正整数 n 的一种划分。
+
+现在给定一个正整数 n，请你求出 n 共有多少种不同的划分方法。
+
+输入格式
+共一行，包含一个整数 n。
+
+输出格式
+共一行，包含一个整数，表示总划分数量。
+
+由于答案可能很大，输出结果请对 109+7 取模。
+
+数据范围
+1≤n≤1000
+输入样例:
+5
+输出样例：
+7
+
+完全背包写法
+二维朴素写法
+#include <iostream>
+#include <algorithm>
+#include <cstring>
+using namespace std;
+const int N = 1010,MOD = 1e9 + 7;
+int dp[N][N],n;
+
+
+int main()
+{
+    cin >> n;
+    dp[0][0] = 1;
+    for(int i = 1;i <= n;i++)
+    {
+        for(int j = 0;j <= n;j++)
+        {
+            dp[i][j] = dp[i - 1][j];
+            if(j >= i)
+                dp[i][j] = (dp[i][j] + dp[i][j - i]) % MOD;
+        }
+    }
+    
+    cout << dp[n][n] << endl;
+    return 0;
+}
+
+一维优化
+#include <iostream>
+#include <algorithm>
+#include <cstring>
+using namespace std;
+const int N = 1010,MOD = 1e9 + 7;
+int dp[N],n;
+
+int main()
+{
+    cin >> n;
+    dp[0] = 1;
+    for(int i = 1;i <= n;i++)
+    {
+        for(int j = i;j <= n;j++)
+        {
+            dp[j] = (dp[j] + dp[j - i]) % MOD;
+        }
+    }
+    
+    cout << dp[n] << endl;
+    return 0;
+}
+
+分拆数
+#include <iostream>
+#include <cstring>
+#include <algorithm>
+using namespace std;
+const int N = 1010,MOD = 1e9 + 7;
+int dp[N][N];
+int n;
+
+int main()
+{
+    cin >> n;
+    
+    dp[0][0] = 1;
+    for(int i = 1;i <= n;i++)
+    {
+        for(int j = 1;j <= i;j++)
+        {
+            dp[i][j] = (dp[i - 1][j - 1] + dp[i - j][j]) % MOD;
+        }
+    }
+    
+    int ans = 0;
+    for(int i = 1;i <= n;i++) ans = (ans + dp[n][i]) % MOD;
+    
+    cout << ans << endl;
+    
+    return 0;
+}
+
+算法核心:
+完全背包做法:
+dp[i][j] = dp[i-1][j] + dp[i-1][j-i] + dp[i-1][j-2*i] + ...... + dp[i-1][j-s*i]
+dp[i][j-i] =                 dp[i-1][j-i] + dp[i-1][j-2*i] + ........+ dp[i-1]j-s*i]
+最后一项一定是j-s*i 因为数组下标不能小于0 所以组合一下 dp[i][j] = dp[i-1][j] + dp[i][j-i]
+
+分拆数做法:
+dp[i][j]
+状态集合:i表示总和为i j表示选了j个数字  所以此集合就是选了j个数字总和为i的所有集合
+状态属性:总和为i且选了j个数字的所有选法
+状态划分:可以划分为两部分 一部分是选的数字的最小值为1 一部分是选择的数字的最小值不是1
+dp[i][j] 可以划分为两部分一部分减去最小值1即总和变为i-1选择了j-1个数dp[i-1][j-1]
+					第二部分 最小值非1 则所有选择的数字都减去1 则总和为i - j 选择的数字的数量为j 即dp[i-j][j]
