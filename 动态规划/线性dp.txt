@@ -71,3 +71,295 @@ int main()
 处理边界问题 因为动态规划过程中会用到上一层的状态所以初始状态得处理好
 因为数据范围是-10000 ~ +10000
 所以不能将dp的边界值设置为0 因为0比负数大可能出现错误
+
+最长上升子序列
+
+例题:https://www.acwing.com/problem/content/897/
+
+给定一个长度为 N 的数列，求数值严格单调递增的子序列的长度最长是多少。
+
+输入格式
+第一行包含整数 N。
+
+第二行包含 N 个整数，表示完整序列。
+
+输出格式
+输出一个整数，表示最大长度。
+
+数据范围
+1≤N≤1000，
+−109≤数列中的数≤109
+输入样例：
+7
+3 1 2 1 8 5 6
+输出样例：
+4
+
+#include <iostream>
+#include <algorithm>
+#include <cstring>
+using namespace std;
+const int N = 1010;
+int dp[N],arr[N];
+int n;
+
+int main()
+{
+    cin >> n;
+    for(int i = 1;i <= n;i++) 
+    {
+        cin >> arr[i];
+        dp[i] = 1;
+    }
+    
+    for(int i = 1;i <= n;i++)
+    {
+        for(int j = 1;j < i;j++)
+        {
+            if(arr[j] < arr[i]) dp[i] = max(dp[i],dp[j] + 1);
+        }
+    }
+    int ans = 0; 
+    for(int i = 1;i <= n;i++) ans = max(ans,dp[i]);
+    
+    cout << ans << endl;
+    
+    return 0;
+}
+
+算法核心:
+初始时候各自是一个最长上升子序列 所以dpi要初始化为1
+然后从遍历i以前是所有数 找到一个比arri小的且dpj更大的数
+状态集合:以arri结尾的所有子序列
+状态属性:以arri结尾的所有子序列中的最大值
+
+
+最长公共子序列
+
+例题:https://www.acwing.com/problem/content/899/
+
+给定两个长度分别为 N 和 M 的字符串 A 和 B，求既是 A 的子序列又是 B 的子序列的字符串长度最长是多少。
+
+输入格式
+第一行包含两个整数 N 和 M。
+
+第二行包含一个长度为 N 的字符串，表示字符串 A。
+
+第三行包含一个长度为 M 的字符串，表示字符串 B。
+
+字符串均由小写字母构成。
+
+输出格式
+输出一个整数，表示最大长度。
+
+数据范围
+1≤N,M≤1000
+输入样例：
+4 5
+acbd
+abedc
+输出样例：
+3
+
+#include <iostream>
+#include <algorithm>
+#include <cstring>
+using namespace std;
+const int N = 1010;
+int dp[N][N];
+char A[N],B[N];
+int n,m;
+
+int main()
+{
+    cin >> n >> m;
+    cin >> A + 1 >> B + 1;
+    for(int i = 1;i <= n;i++)
+    {
+        for(int j = 1;j <= m;j++)
+        {
+            dp[i][j] = max(dp[i - 1][j],dp[i][j - 1]);
+            if(A[i] == B[j]) dp[i][j] = max(dp[i][j],dp[i - 1][j - 1] + 1);
+        }
+    }
+    
+    cout << dp[n][m] << endl;
+    
+    return 0;
+}
+
+算法核心:
+dp[i][j]
+状态集合:A字符串前i个字符和B字符串前j个字符所能匹配的所有子序列
+状态属性:A前i和B前j个字符所能匹配的最长公共子序列的长度
+前i和前j可以划分为4个状态
+00 01 10 11 (1表示此字符选了 0表示此字符没选)
+00就相当于是dp[i - 1][j - 1]  01被包含于dp[i - 1][j]中 虽然j字符不一定在dp[i - 1][j]中但是算的是最大值且此状态一定被包含在dp[i][j]中所以无影响
+10也是一样的  11不一定存在 若是存在则是 A[i]和B[j]相等
+
+最短编辑距离
+
+例题:https://www.acwing.com/problem/content/904/
+
+给定两个字符串 A 和 B，现在要将 A 经过若干操作变为 B，可进行的操作有：
+
+删除–将字符串 A 中的某个字符删除。
+插入–在字符串 A 的某个位置插入某个字符。
+替换–将字符串 A 中的某个字符替换为另一个字符。
+现在请你求出，将 A 变为 B 至少需要进行多少次操作。
+
+输入格式
+第一行包含整数 n，表示字符串 A 的长度。
+
+第二行包含一个长度为 n 的字符串 A。
+
+第三行包含整数 m，表示字符串 B 的长度。
+
+第四行包含一个长度为 m 的字符串 B。
+
+字符串中均只包含大小写字母。
+
+输出格式
+输出一个整数，表示最少操作次数。
+
+数据范围
+1≤n,m≤1000
+输入样例：
+10
+AGTCTGACGC
+11
+AGTAAGTAGGC
+输出样例：
+4
+
+#include <iostream>
+#include <cstring>
+#include <algorithm>
+using namespace std;
+const int N = 1010;
+int dp[N][N];
+char A[N],B[N];
+int n,m;
+
+int main()
+{
+    cin >> n;
+    cin >> A + 1;
+    cin >> m;
+    cin >> B + 1;
+    for (int i = 0; i <= m; i ++ ) dp[0][i] = i;
+    for (int i = 0; i <= n; i ++ ) dp[i][0] = i;
+    for(int i = 1;i <= n;i++)
+    {
+        for(int j = 1;j <= m;j++)
+        {
+            dp[i][j] = min(dp[i - 1][j] + 1,dp[i][j - 1] + 1);
+            if(A[i] != B[j]) dp[i][j] = min(dp[i][j],dp[i - 1][j - 1] + 1);
+            else dp[i][j] = min(dp[i][j],dp[i - 1][j - 1]);
+        }
+    }
+    
+    cout << dp[n][m] << endl;
+    
+    return 0;
+}
+
+算法核心:
+dp[i][j] 
+状态集合:将A中前i个字符和B中前j个字符变为相等的方法集合
+状态表示:
+因为一共有三种操作所以可以考虑最后一步操作是什么
+①若是最后一步操作是删除则是将A中i-1个字符和B中j个字符匹配 即dp[i - 1][j] + 1
+②若是最后一步操作是插入则是将A中i个字符和B中j-1个字符匹配 即dp[i][j - 1] + 1
+③若是最后一步操作是替换 因为可能Ai和Bj相等则无需替换 所以需要先判断
+若是不相等 则需要i-1个字符和j-1个字符匹配即dp[i - 1][j - 1] + 1
+若是相等 则需要将i-1个字符和j-1个字符匹配即dp[i - 1][j - 1]不需要替换所以不需要加1
+
+编辑距离
+
+例题:https://www.acwing.com/problem/content/description/901/
+
+给定 n 个长度不超过 10 的字符串以及 m 次询问，每次询问给出一个字符串和一个操作次数上限。
+
+对于每次询问，请你求出给定的 n 个字符串中有多少个字符串可以在上限操作次数内经过操作变成询问给出的字符串。
+
+每个对字符串进行的单个字符的插入、删除或替换算作一次操作。
+
+输入格式
+第一行包含两个整数 n 和 m。
+
+接下来 n 行，每行包含一个字符串，表示给定的字符串。
+
+再接下来 m 行，每行包含一个字符串和一个整数，表示一次询问。
+
+字符串中只包含小写字母，且长度均不超过 10。
+
+输出格式
+输出共 m 行，每行输出一个整数作为结果，表示一次询问中满足条件的字符串个数。
+
+数据范围
+1≤n,m≤1000,
+
+输入样例：
+3 2
+abc
+acd
+bcd
+ab 1
+acbd 2
+输出样例：
+1
+3
+
+#include <iostream>
+#include <string>
+#include <cstring>
+#include <algorithm>
+using namespace std;
+const int N = 1010,M = 15;
+int n,m,dp[N][M];
+char str[N][M];
+
+int check(char* pos,int lim)
+{
+    int len = strlen(pos + 1);
+    int res = 0;
+    for(int i = 1;i <= n;i++)
+    {
+        int lens = strlen(str[i] + 1);
+        for(int j = 0;j <= lens;j++) dp[j][0] = j;
+        for(int j = 0;j <= len;j++) dp[0][j] = j;
+        for(int j = 1;j <= lens;j++)
+        {
+            for(int k = 1;k <= len;k++)
+            {
+                dp[j][k] = min(dp[j - 1][k] + 1,dp[j][k - 1] + 1);
+                if(str[i][j] != pos[k]) dp[j][k] = min(dp[j][k],dp[j - 1][k - 1] + 1);
+                else dp[j][k] = min(dp[j][k],dp[j - 1][k - 1]);
+            }
+            
+        }
+        if(dp[lens][len] <= lim) res++;
+    }
+    return res;
+}
+
+int main()
+{
+    cin >> n >> m;
+    for(int i = 1;i <= n;i++)
+    {
+        cin >> str[i] + 1;
+    }
+    while(m--)
+    {
+        int lim;
+        char pos[M];
+        cin >> pos + 1 >> lim;
+        cout << check(pos,lim) << endl;
+    }
+    return 0;
+}
+
+算法核心:
+跟上题一样的编辑距离 只不过需要多次判断
