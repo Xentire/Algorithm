@@ -1,0 +1,112 @@
+没有上司的舞会
+
+例题:https://www.acwing.com/problem/content/287/
+
+Ural 大学有 N 名职员，编号为 1∼N。
+
+他们的关系就像一棵以校长为根的树，父节点就是子节点的直接上司。
+
+每个职员有一个快乐指数，用整数 Hi 给出，其中 1≤i≤N。
+
+现在要召开一场周年庆宴会，不过，没有职员愿意和直接上司一起参会。
+
+在满足这个条件的前提下，主办方希望邀请一部分职员参会，使得所有参会职员的快乐指数总和最大，求这个最大值。
+
+输入格式
+第一行一个整数 N。
+
+接下来 N 行，第 i 行表示 i 号职员的快乐指数 Hi。
+
+接下来 N−1 行，每行输入一对整数 L,K，表示 K 是 L 的直接上司。（注意一下，后一个数是前一个数的父节点，不要搞反）。
+
+输出格式
+输出最大的快乐指数。
+
+数据范围
+1≤N≤6000,
+−128≤Hi≤127
+输入样例：
+7
+1
+1
+1
+1
+1
+1
+1
+1 3
+2 3
+6 4
+7 4
+4 5
+3 5
+输出样例：
+5
+
+#include <iostream>
+#include <cstring>
+#include <algorithm>
+using namespace std;
+const int N = 6010;
+int dp[N][2];
+int ne[N],h[N],e[N],idx;
+int hap[N],n;
+bool hash_fa[N];
+
+void add(int a,int b)
+{
+    e[idx] = b,ne[idx] = h[a],h[a] = idx++;
+}
+
+void dfs(int u)
+{
+    dp[u][1] = hap[u];
+    
+    for(int i = h[u];i != -1;i = ne[i])
+    {
+        int j = e[i];
+        dfs(j);
+        dp[u][1] += dp[j][0];
+        dp[u][0] += max(dp[j][0],dp[j][1]);
+    }
+}
+
+int main()
+{
+    cin >> n;
+    for(int i = 1;i <= n;i++) cin >> hap[i];
+    memset(h,-1,sizeof h);
+    for(int i = 1;i < n;i++)
+    {
+        int a,b;
+        cin >> a >> b;
+        hash_fa[a] = true;
+        add(b,a);
+    }
+    int u; 
+    for(int i = 1;i <= n;i++)
+    {
+        if(hash_fa[i] == false)
+        {
+            u = i;
+            break;
+        }
+    }
+    
+    dfs(u);
+    
+    cout << max(dp[u][0],dp[u][1]) << endl;
+    
+    return 0; 
+}
+
+算法核心:
+因为此树相当于有向图 递归过程中只会向下递归而不会重复向上递归  所以不需要st数组来判断是否递归遍历过
+dp[u][j] j == 0表示不选择u节点 j == 1表示选择u节点
+状态集合: u 表示以u节点为根节点 j 表示选或不选此根节点的所有集合
+状态属性: 以u为根节点 选或者不选此节点的所有集合的快乐值的最大值
+状态表示:
+若是选择此节点则 dp[u][1] 先初始化为h[u] 因为要选择此节点
+①选择此节点 因为员工不会和直接上司一起参与舞会 所以u节点的子节点只能全都不选 即遍历其所有儿子然后 += dp[j][0]
+②不选此节点 则u节点的儿子节点有两种选择 一是参与舞会 二是不参与舞会 两种情况取一个最大值 即 += man(dp[j][0],dp[j][1])
+因为计算当前节点需要用到儿子节点的dp值 所有先dfs处理其当前遍历到的子节点
