@@ -77,3 +77,75 @@ int main()
 我们每次更换右端点的时候 只是因为下一个区间的左端点大于右端点 在右端点放点无法将下一个区间覆盖
 所以我们每次放点一定是此时可以覆盖到足够多的点才会放点 所以此时放的点的数目一定是最小的 即 ans >= cnt
 所以得证 cnt == ans
+
+最大不相交区间数量
+
+例题:https://www.acwing.com/problem/content/910/
+
+给定 N 个闭区间 [ai,bi]，请你在数轴上选择若干区间，使得选中的区间之间互不相交（包括端点）。
+
+输出可选取区间的最大数量。
+
+输入格式
+第一行包含整数 N，表示区间数。
+
+接下来 N 行，每行包含两个整数 ai,bi，表示一个区间的两个端点。
+
+输出格式
+输出一个整数，表示可选取区间的最大数量。
+
+数据范围
+1≤N≤105,
+−109≤ai≤bi≤109
+输入样例：
+3
+-1 1
+2 4
+3 5
+输出样例：
+2
+
+#include <iostream>
+#include <algorithm>
+#include <cstring>
+using namespace std;
+const int N = 1e5 + 10;
+struct Range
+{
+    int l,r;
+    bool operator<(const Range &w) const
+    {
+        return r < w.r;
+    }
+}range[N];
+int n;
+
+int main()
+{
+    cin >> n;
+    for(int i = 0;i < n;i++)
+    {
+        int l,r;
+        cin >> l >> r;
+        range[i] = {l,r};
+    }
+    sort(range,range + n);
+    int ans = 0,ed = -2e9;
+    
+    for(int i = 0;i < n;i++)
+    {
+        if(range[i].l > ed)
+        {
+            ans++;
+            ed = range[i].r;
+        }
+    }
+    
+    cout << ans << endl;
+    
+    
+    return 0;
+}
+
+算法核心:
+因为想要获得最大不相交区间数量即右端点需要尽可能小 右端点小可以覆盖的范围就小 就可以与其他区间重复的更少
