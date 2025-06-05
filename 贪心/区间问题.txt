@@ -1,0 +1,79 @@
+区间选点
+
+例题:https://www.acwing.com/problem/content/907/
+
+给定 N 个闭区间 [ai,bi]，请你在数轴上选择尽量少的点，使得每个区间内至少包含一个选出的点。
+
+输出选择的点的最小数量。
+
+位于区间端点上的点也算作区间内。
+
+输入格式
+第一行包含整数 N，表示区间数。
+
+接下来 N 行，每行包含两个整数 ai,bi，表示一个区间的两个端点。
+
+输出格式
+输出一个整数，表示所需的点的最小数量。
+
+数据范围
+1≤N≤105,
+−109≤ai≤bi≤109
+输入样例：
+3
+-1 1
+2 4
+3 5
+输出样例：
+2
+
+#include <iostream>
+#include <cstring>
+#include <algorithm>
+using namespace std;
+const int N = 1e5 + 10;
+int n;
+struct Range
+{
+    int l,r;
+    bool operator<(const Range &w) const 
+    {
+        return r < w.r;
+    }
+}range[N];
+
+int main()
+{
+    cin >> n;
+    for(int i = 0;i < n;i++)
+    {
+        int l,r;
+        cin >> l >> r;
+        range[i] = {l,r};
+    }
+    sort(range,range + n);
+    int ans = 0,ed = -2e9;
+    
+    for(int i = 0;i < n;i++)
+    {
+        if(range[i].l > ed)
+        {
+            ans++;
+            ed = range[i].r;
+        }
+    }
+    
+    cout << ans << endl;
+    
+    return 0;
+}
+
+算法核心:
+证明答案ans >= cnt cnt是我们算法的出来的结果
+再证明ans <cnt 则 ans == cnt
+因为题目要求我们选出最少的点 所以 ans <= cnt
+
+根据区间的右端点排序 想要选出最少的点 则选择的点需要覆盖足够多的区间
+我们每次更换右端点的时候 只是因为下一个区间的左端点大于右端点 在右端点放点无法将下一个区间覆盖
+所以我们每次放点一定是此时可以覆盖到足够多的点才会放点 所以此时放的点的数目一定是最小的 即 ans >= cnt
+所以得证 cnt == ans
