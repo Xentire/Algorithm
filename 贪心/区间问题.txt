@@ -149,3 +149,91 @@ int main()
 
 算法核心:
 因为想要获得最大不相交区间数量即右端点需要尽可能小 右端点小可以覆盖的范围就小 就可以与其他区间重复的更少
+
+区间覆盖
+
+例题:https://www.acwing.com/problem/content/909/
+
+给定 N 个区间 [ai,bi] 以及一个区间 [s,t]，请你选择尽量少的区间，将指定区间完全覆盖。
+
+输出最少区间数，如果无法完全覆盖则输出 −1。
+
+输入格式
+第一行包含两个整数 s 和 t，表示给定区间的两个端点。
+
+第二行包含整数 N，表示给定区间数。
+
+接下来 N 行，每行包含两个整数 ai,bi，表示一个区间的两个端点。
+
+输出格式
+输出一个整数，表示所需最少区间数。
+
+如果无解，则输出 −1。
+
+数据范围
+1≤N≤105,
+−109≤ai≤bi≤109,
+−109≤s≤t≤109
+输入样例：
+1 5
+3
+-1 3
+2 4
+3 5
+输出样例：
+2
+
+#include <iostream>
+#include <algorithm>
+#include <cstring>
+using namespace std;
+const int N = 1e5 + 10;
+int n;
+struct Range
+{
+    int l,r;
+    bool operator<(const Range &w)const
+    {
+        return l < w.l;
+    }
+}range[N];
+
+int main()
+{
+    int st,ed;
+    cin >> st >> ed;
+    cin >> n;
+    for(int i = 1;i <= n;i++) cin >> range[i].l >> range[i].r;
+    sort(range + 1,range + 1 + n);
+    
+    int ans = 0;
+    bool success = false;
+    for(int i = 1;i <= n;i++)
+    {
+        int j = i,r = -2e9;
+        while(j <= n && range[j].l <= st)
+        {
+            r = max(r,range[j].r);
+            j++;
+        }
+        
+        if(r < st) break;
+        ans++;
+        if(r >= ed)
+        {
+            success = true;
+            break;
+        }
+
+        st = r;
+        i = j - 1;
+    }
+    
+    if(success) cout << ans << endl;
+    else cout << -1 << endl;
+
+    return 0;
+}
+
+算法核心:
+以右端点排序 因为要覆盖足够多的区间 将可以覆盖左边界的区间选择一个右端点最大的区间
